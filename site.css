@@ -61,6 +61,8 @@ h1 { font-size: clamp(3rem, 5.4vw + 0.5rem, 6rem); max-width: none; }
 .sheet { aspect-ratio: var(--sheet-ratio); display: flex; align-items: center; justify-content: center; padding: 13.4% 15.5% 9.8% 11.3%; background: url("assets/paper.png") center / 100% 100% no-repeat; }
 .map .sheet { width: min(100%, calc((100svh - 350px) * 194 / 213)); margin-inline: auto; }
 .floor { display: block; max-width: none; }
+/* the canvas starts at its 666px attribute size; without this it stretches the column before JS resizes it */
+.map, .replay, .sheet { min-width: 0; }
 .map__off { color: var(--color-ink-2); text-align: center; }
 
 .map__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-md) var(--space-lg); }
@@ -198,6 +200,8 @@ td.figure { color: var(--color-ink); font-size: var(--text-xl); font-weight: 700
 }
 @media (max-width: 40rem) {
     .nav nav { gap: var(--space-xs) var(--space-md); }
+    .wordmark { font-size: var(--text-lg); }
+    .nav nav a { font-size: var(--text-md); }
     .nav__extra { display: none; }
     .tune__grid, .checks { grid-template-columns: minmax(0, 1fr); }
     .field--wide { grid-column: auto; }
