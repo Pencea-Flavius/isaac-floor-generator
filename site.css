@@ -91,7 +91,7 @@ h1 { font-size: clamp(3rem, 5.4vw + 0.5rem, 6rem); max-width: none; }
 .field--wide { grid-column: 1 / -1; }
 .field__row { display: flex; align-items: center; gap: var(--space-sm); }
 .field label, .checks legend { font-size: var(--text-lg); font-weight: 700; color: var(--color-muted); }
-.field input:not([type="range"]), .field select { width: 100%; min-width: 0; min-height: 56px; padding: 0 var(--space-lg) 14px var(--space-md); border: 2px solid transparent; border-image: url("assets/field.png") 16 14 20 12 fill / 16px 14px 20px 12px stretch; background: none; color: var(--color-ink); font-weight: 700; outline: 2px solid transparent; outline-offset: 2px; }
+.field input:not([type="range"]), .field select { width: 100%; min-width: 0; min-height: 56px; padding: 0 var(--space-lg) 6px var(--space-md); border: 2px solid transparent; border-image: url("assets/field.png") 16 14 20 12 fill / 16px 14px 20px 12px stretch; background: none; color: var(--color-ink); font-weight: 700; outline: 2px solid transparent; outline-offset: 2px; }
 .field select { appearance: none; background: linear-gradient(135deg, var(--color-ink) 50%, transparent 50%) right 26px center / 8px 8px no-repeat, linear-gradient(225deg, var(--color-ink) 50%, transparent 50%) right 18px center / 8px 8px no-repeat; padding-right: 44px; cursor: pointer; }
 .field input:focus-visible, .field select:focus-visible { outline-color: var(--color-focus); }
 .planet { min-width: 15ch; font-weight: 700; color: var(--color-planet); font-variant-numeric: tabular-nums; }
@@ -220,10 +220,12 @@ td.figure { color: var(--color-ink); font-size: var(--text-xl); font-weight: 700
     .scrub output { min-width: 0; }
     /* step cards */
     .chapters { padding-left: 0; gap: 6svh; padding-block: var(--space-lg) 40svh; }
-    .chapter { padding: var(--space-lg); }
+    .chapter { padding: var(--space-md) var(--space-md) var(--space-md) var(--space-lg); gap: var(--space-xs); border-width: 3px; box-shadow: 5px 5px 0 color-mix(in oklab, var(--color-ink) 40%, transparent); }
     .chapter::before { display: none; }
-    .chapter h3 { font-size: var(--text-xl); }
-    .chapter p:not(.chapter__figure) { font-size: var(--text-md); }
+    .chapter::after { top: -18px; width: 40px; height: 32px; margin-left: -20px; background-size: 40px 32px; }
+    .chapter__figure { font-size: var(--text-2xl); }
+    .chapter h3 { font-size: var(--text-lg); }
+    .chapter p:not(.chapter__figure) { font-size: var(--text-sm); line-height: 1.5; }
     /* odds: one block per row, source column dropped (it's in Sources) */
     thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     table, tbody { display: block; }

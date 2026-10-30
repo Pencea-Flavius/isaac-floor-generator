@@ -59,7 +59,7 @@ function sizeToFloor(canvas, rooms) {
     canvas.style.height = canvas.height / dpr + 'px';
 }
 
-// fit = zoom to the rooms (hero), otherwise draw the whole grid (replay).
+// fit = zoom to the rooms (or to a given list of rooms), otherwise draw the whole grid (replay).
 // Returns { k, ox, oy } for mapping the mouse back to cells.
 function drawMap(canvas, rooms, { focus = [], depths = false, showUltra = true, fit = false } = {}) {
     const ctx = canvas.getContext('2d');
@@ -67,7 +67,7 @@ function drawMap(canvas, rooms, { focus = [], depths = false, showUltra = true, 
     let k = Math.max(1, Math.floor(Math.min(canvas.width / W, canvas.height / H)));
     let ox = Math.floor((canvas.width - W * k) / 2), oy = Math.floor((canvas.height - H * k) / 2);
     if (fit) {
-        const vis = rooms.filter(shown);
+        const vis = (Array.isArray(fit) ? fit : rooms).filter(shown);
         const x0 = Math.min(...vis.map((r) => r.x)), y0 = Math.min(...vis.map((r) => r.y));
         const x1 = Math.max(...vis.map((r) => r.x + G.SHAPES[r.id].w)), y1 = Math.max(...vis.map((r) => r.y + G.SHAPES[r.id].h));
         const w = (x1 - x0) * CW + 1, h = (y1 - y0) * CH + 1;
@@ -281,7 +281,7 @@ function setFrame(i) {
     step.textContent = `Step ${frame + 1} of ${floor.frames.length}`;
     caption.textContent = f.note;
     // highlight the new room while playing, or the chapter's rooms when paused
-    drawMap(replayCanvas, f.rooms, { focus: (!timer && marked(f.rooms)) || f.focus, depths: f.depths });
+    drawMap(replayCanvas, f.rooms, { focus: (!timer && marked(f.rooms)) || f.focus, depths: f.depths, fit: narrow.matches && everyRoom });
 }
 
 function stop() {
@@ -310,8 +310,16 @@ function showChapter(el) {
     setFrame(el.dataset.at === 'first' ? from : to);
 }
 
+// on phones the whole 13x13 grid is too small, so the replay is cropped to every room the replay ever shows
+const narrow = matchMedia('(max-width: 40rem)');
+let everyRoom = [];
+function sizeReplay() {
+    if (narrow.matches && floor) sizeToFloor(replayCanvas, everyRoom); else sizeCanvas(replayCanvas, true);
+}
 function setupReplay() {
     stop();
+    everyRoom = floor.frames.flatMap((f) => f.rooms);
+    sizeReplay();
     range.max = floor.frames.length - 1;
     if (chapter) { const el = chapter; chapter = null; showChapter(el); } else setFrame(floor.frames.length - 1);
 }
@@ -329,10 +337,10 @@ form.addEventListener('change', (e) => (e.target.name === 'ultra' ? (settings = 
 $('reseed').addEventListener('click', () => { form.elements.seed.value = newSeed(); roll(); });
 $('roll').addEventListener('click', () => { form.elements.seed.value = newSeed(); roll(); });
 
-sizeCanvas(replayCanvas, true);
+sizeReplay();
 // redraw on resize
 const resized = new ResizeObserver(() => {
-        sizeCanvas(replayCanvas, true);
+    sizeReplay();
     if (floor) { drawHero(); setFrame(frame); }
 });
 resized.observe(document.querySelector('.map .sheet'));
