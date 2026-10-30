@@ -235,7 +235,7 @@ skipped.addEventListener('input', planetLabel);
 // ---- hover info on the hero map
 
 const readout = $('readout'), idle = readout.textContent;
-mapCanvas.addEventListener('pointermove', (e) => {
+const showRoom = (e) => {
     // offsetX/Y are relative to the canvas
     const px = e.offsetX / mapCanvas.clientWidth * mapCanvas.width, py = e.offsetY / mapCanvas.clientHeight * mapCanvas.height;
     const x = Math.floor((px - view.ox) / view.k / CW), y = Math.floor((py - view.oy) / view.k / CH);
@@ -243,8 +243,10 @@ mapCanvas.addEventListener('pointermove', (e) => {
     if (!r || (r.type === 'ultra_secret' && !settings.ultra)) { readout.textContent = idle; return; }
     const depth = r.depth === undefined ? '' : `, depth ${r.depth}`;
     readout.textContent = `${G.TYPES[r.type]}, ${G.SHAPES[r.id].name}${depth}.`;
-});
-mapCanvas.addEventListener('pointerleave', () => { readout.textContent = idle; });
+};
+mapCanvas.addEventListener('pointermove', showRoom);
+mapCanvas.addEventListener('pointerdown', showRoom); // tap on touch screens
+mapCanvas.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') readout.textContent = idle; }); // a tap's text stays
 
 // ---- replay
 

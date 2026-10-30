@@ -202,4 +202,29 @@ td.figure { color: var(--color-ink); font-size: var(--text-xl); font-weight: 700
     .tune__grid, .checks { grid-template-columns: minmax(0, 1fr); }
     .field--wide { grid-column: auto; }
     .readings dd { font-size: var(--text-lg); }
+    /* hero: floor + rooms on one row, seed paper on its own row */
+    .readings { grid-template-columns: auto auto; }
+    .readings > .readings__seed { grid-column: 1 / -1; margin: var(--space-sm) 0 0; }
+    .readings__seed dd { font-size: var(--text-3xl); }
+    .boss__portrait { height: 72px; }
+    /* replay: smaller pinned header so the cards stay visible */
+    .replay { gap: var(--space-2xs); }
+    .replay .sheet { width: min(100%, calc(28svh * 194 / 213)); }
+    #caption { font-size: var(--text-xs); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .scrub { gap: var(--space-sm); }
+    .scrub .btn { min-width: 0; padding-inline: var(--space-lg); }
+    .scrub output { min-width: 0; }
+    /* step cards */
+    .chapters { padding-left: 0; gap: 6svh; padding-block: var(--space-lg) 40svh; }
+    .chapter { padding: var(--space-lg); }
+    .chapter::before { display: none; }
+    .chapter h3 { font-size: var(--text-xl); }
+    .chapter p:not(.chapter__figure) { font-size: var(--text-md); }
+    /* odds: one block per row, source column dropped (it's in Sources) */
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    table, tbody { display: block; }
+    tbody tr { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: var(--space-2xs) var(--space-md); padding-block: var(--space-md); border-bottom: var(--rule-hair) solid var(--color-rule); }
+    tbody th { grid-column: 1 / -1; position: static; background: none; }
+    th, td { padding: 0; border: 0; }
+    td:last-child { display: none; }
 }

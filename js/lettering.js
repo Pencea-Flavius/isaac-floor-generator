@@ -20,7 +20,7 @@ function draw(el) {
     const k = raw >= 1 ? Math.round(raw) : raw;
     // wrap block text; keep inline / flex-row / label text on one line
     const ps = getComputedStyle(el.parentElement);
-    const oneLine = /inline/.test(cs.display) || el.matches('dd, .readings dt, legend, label, thead th, .boss__name')
+    const oneLine = /inline/.test(cs.display) || el.matches('dd, .readings dt, legend, label, thead th, td.figure, .boss__name')
         || (/flex/.test(ps.display) && ps.flexDirection.startsWith('row'));
     const room = oneLine ? Infinity
         : Math.max(1, el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight)) * dpr / k;
