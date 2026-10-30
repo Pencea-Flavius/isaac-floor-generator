@@ -326,9 +326,26 @@ function setupReplay() {
 
 range.addEventListener('input', () => { stop(); setFrame(Number(range.value)); });
 playBtn.addEventListener('click', play);
-const io = new IntersectionObserver((entries) => entries.forEach((e) => e.isIntersecting && showChapter(e.target)),
-    { rootMargin: '-45% 0px -45% 0px' });
-document.querySelectorAll('.chapter').forEach((el) => io.observe(el));
+// the active chapter is the one nearest the middle of the visible area;
+// on phones the replay is pinned on top, so that's the middle of what's left below it
+const chapters = [...document.querySelectorAll('.chapter')];
+const replayBox = document.querySelector('.replay');
+let ticking = false;
+function pickChapter() {
+    ticking = false;
+    const grow = document.getElementById('grow').getBoundingClientRect();
+    if (grow.bottom < 0 || grow.top > innerHeight) return;
+    const top = narrow.matches ? Math.max(0, replayBox.getBoundingClientRect().bottom) : 0;
+    const mid = (top + innerHeight) / 2;
+    let best = chapters[0], dist = Infinity;
+    for (const el of chapters) {
+        const r = el.getBoundingClientRect();
+        const d = mid < r.top ? r.top - mid : mid > r.bottom ? mid - r.bottom : 0;
+        if (d < dist) { dist = d; best = el; }
+    }
+    showChapter(best);
+}
+addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(pickChapter); } }, { passive: true });
 
 // ---- wiring
 

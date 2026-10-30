@@ -1,5 +1,5 @@
-@import url("./tokens.css");
-@import url("./base.css");
+@import url("./tokens.css?v=4");
+@import url("./base.css?v=4");
 
 :root { --nav-h: 72px; --floor-ratio: 222 / 196; --sheet-ratio: 194 / 213; }
 
@@ -213,7 +213,7 @@ td.figure { color: var(--color-ink); font-size: var(--text-xl); font-weight: 700
     .boss__portrait { height: 72px; }
     /* replay: smaller pinned header so the cards stay visible */
     .replay { gap: var(--space-2xs); }
-    .replay .sheet { width: min(100%, calc(28svh * 194 / 213)); }
+    .replay .sheet { width: min(100%, calc(34svh * 194 / 213)); }
     #caption { font-size: var(--text-xs); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
     .scrub { gap: var(--space-sm); }
     .scrub .btn { min-width: 0; padding-inline: var(--space-lg); }
