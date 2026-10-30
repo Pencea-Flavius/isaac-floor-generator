@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isaac floor generator – Repentance floor layouts</title>
+<meta name="description" content="A Binding of Isaac: Repentance floor generator based on the game’s code, with a step by step replay of how a floor is built.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="menu">
+    <header class="nav">
+        <div class="container nav__row">
+            <a class="wordmark" href="#top" aria-label="Isaac floor generator, back to the top" data-letter>Floor generator</a>
+            <nav aria-label="Sections">
+                <a href="#grow" data-letter>How it works</a>
+                <a href="#odds" data-letter>The odds</a>
+                <a class="nav__extra" href="#sources" data-letter>Sources</a>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main">
+        <section class="bench container" id="top" aria-labelledby="hero-head">
+            <div class="hero">
+                <h1 id="hero-head" data-letter>Isaac floor generator</h1>
+                <p class="lead">Generates floors the same way Repentance does, drawn with the game’s own sprites.</p>
+                <div class="actions">
+                    <button class="menu-item menu-item--main" type="button" id="roll"><span data-letter>New floor</span></button>
+                    <a class="menu-item" href="#grow"><span data-letter>See how it works</span></a>
+                </div>
+            </div>
+
+            <figure class="map">
+                <div class="sheet">
+                    <canvas id="map" class="floor" width="666" height="588" role="img" aria-label="A generated floor"></canvas>
+                    <noscript><p class="map__off">The generator runs in your browser. Turn on JavaScript to roll a floor.</p></noscript>
+                </div>
+                <div class="map__foot">
+                    <dl class="readings">
+                        <div><dt data-letter>Floor</dt><dd id="f-stage" data-letter>Basement I</dd></div>
+                        <div><dt data-letter>Rooms</dt><dd id="f-rooms" data-letter>0</dd></div>
+                        <div class="readings__seed"><dt data-letter>Seed</dt><dd id="f-seed" data-letter>1</dd></div>
+                    </dl>
+                    <div class="boss" id="boss" hidden>
+                        <img class="boss__portrait" id="boss-portrait" src="assets/boss/1.png" width="192" height="192" alt="">
+                        <div class="boss__words">
+                            <p class="boss__name" id="boss-name" data-letter>Monstro</p>
+                            <p class="boss__note" id="boss-note"></p>
+                        </div>
+                    </div>
+                </div>
+                <figcaption class="readout" id="readout" aria-live="polite">Hover over a room to see what it is.</figcaption>
+            </figure>
+
+            <form class="tune" id="tune" aria-labelledby="tune-head">
+                <h2 id="tune-head" data-letter>Settings</h2>
+                <p class="tune__lead">The seed stays the same when you change something, so you can see exactly what it affects.</p>
+
+                <div class="tune__grid">
+                    <div class="field">
+                        <label for="stage" data-letter>Floor</label>
+                        <select id="stage" name="stage">
+                            <option value="1">Basement I</option><option value="2">Basement II</option>
+                            <option value="3">Caves I</option><option value="4">Caves II</option>
+                            <option value="5">Depths I</option><option value="6">Depths II</option>
+                            <option value="7">Womb I</option><option value="8">Womb II</option>
+                        </select>
+                    </div>
+                    <div class="field field--wide">
+                        <label for="seed" data-letter>Seed</label>
+                        <div class="field__row">
+                            <input id="seed" name="seed" type="number" inputmode="numeric" min="1" max="4294967295" value="1">
+                            <button class="btn" type="button" id="reseed"><span data-letter>New seed</span></button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="keys" data-letter>Keys</label>
+                        <input id="keys" name="keys" type="number" inputmode="numeric" min="0" max="99" value="0">
+                    </div>
+                    <div class="field">
+                        <label for="coins" data-letter>Coins</label>
+                        <input id="coins" name="coins" type="number" inputmode="numeric" min="0" max="99" value="5">
+                    </div>
+                    <div class="field field--wide">
+                        <label for="skipped" data-letter>Item rooms skipped on earlier floors</label>
+                        <div class="field__row">
+                            <div class="slider slider--planet"><input type="range" id="skipped" name="itemRoomsSkipped" min="0" max="5" value="0"></div>
+                            <output id="planet" for="skipped stage" class="planet">1% planetarium</output>
+                        </div>
+                    </div>
+                </div>
+
+                <fieldset class="checks">
+                    <legend data-letter>Run</legend>
+                    <label><input type="checkbox" name="fullHealth" checked> Full health</label>
+                    <label><input type="checkbox" name="lowHealth"> One heart or less</label>
+                    <label><input type="checkbox" name="bookPickedUp"> Picked up a book</label>
+                    <label><input type="checkbox" name="devilVisited"> Visited a devil room</label>
+                    <label><input type="checkbox" name="hard"> Hard mode</label>
+                    <label><input type="checkbox" name="lost"> Curse of the Lost</label>
+                    <label><input type="checkbox" name="xl"> Curse of the Labyrinth (XL)</label>
+                    <label><input type="checkbox" name="ultra" id="ultra"> Show ultra secret room</label>
+                </fieldset>
+            </form>
+        </section>
+    </main>
+</div>
+
+<section class="grow container" id="grow" aria-labelledby="grow-head">
+    <span class="doodle doodle--angel" aria-hidden="true"></span>
+    <div class="grow__head">
+        <h2 id="grow-head" data-letter>How a floor is built</h2>
+        <p class="lead">The floor from above, replayed step by step.</p>
+    </div>
+
+    <div class="grow__body">
+        <ol class="chapters">
+            <li class="chapter" data-phase="start">
+                <p class="chapter__figure" data-letter>13 x 13</p>
+                <h3 data-letter>The grid</h3>
+                <p>Every floor is built on a 13×13 grid with the start room in the middle. First the game picks how many rooms to place: 5, plus 0 or 1 at random, plus the floor number × 10 / 3, capped at 20.</p>
+            </li>
+            <li class="chapter" data-phase="layout">
+                <p class="chapter__figure" data-letter>2 in 3</p>
+                <h3 data-letter>Placing rooms</h3>
+                <p>Rooms are placed from a queue. A new room goes to the front of the queue 2 times out of 3, which is why floors tend to stretch out in long branches. Each room tries to add up to four neighbours (one coin flip per side); the start room gets two or three.</p>
+            </li>
+            <li class="chapter" data-phase="layout" data-mark="big">
+                <p class="chapter__figure" data-letter>1 in 72</p>
+                <h3 data-letter>Room shapes</h3>
+                <p>A 1×1 is always an option. Bigger shapes each have their own chance: 1 in 24 for a 2×2, down to 1 in 72 for some L rooms. Narrow rooms can only be placed in the direction their doors point.</p>
+            </li>
+            <li class="chapter" data-phase="layout" data-mark="narrow">
+                <p class="chapter__figure" data-letter>1 neighbour</p>
+                <h3 data-letter>No extra neighbours</h3>
+                <p>A new room may only touch the room it was added from. If it would touch any other room, that room needs a door on that side, otherwise the spot is rejected. This keeps narrow rooms from having rooms against their walls.</p>
+            </li>
+            <li class="chapter" data-phase="deadends special" data-at="first">
+                <p class="chapter__figure" data-letter>6 dead ends</p>
+                <h3 data-letter>Dead ends and special rooms</h3>
+                <p>A dead end is a room with nothing after it. A floor needs at least six (five on the first floor), or it gets rerolled. They are sorted by distance from the start, and the farthest go to the boss, then the super secret room, the shop and the item room. Each special room picks its layout first and then reshapes a dead end to fit it.</p>
+            </li>
+            <li class="chapter" data-phase="boss">
+                <p class="chapter__figure" data-letter>1 in 50</p>
+                <h3 data-letter>The boss</h3>
+                <p>On the first floor of a chapter there is a 1 in 10 chance of a horseman. Double Trouble (two bosses in one long room) has a 1 in 50 chance in the Caves, 1 in 25 in Depths I and 1 in 40 in Womb I.</p>
+            </li>
+            <li class="chapter" data-phase="special">
+                <p class="chapter__figure" data-letter>+20%</p>
+                <h3 data-letter>The planetarium</h3>
+                <p>The base chance is 1%, plus 20% for every item room you skipped on earlier floors. It can’t appear after Depths II. It takes a dead end before rolling; if the roll fails, that dead end goes to the back of the list.</p>
+            </li>
+            <li class="chapter" data-phase="secret">
+                <p class="chapter__figure" data-letter>10 to 14</p>
+                <h3 data-letter>Secret rooms</h3>
+                <p>Every empty cell gets a random score from 10 to 14, minus 3 if it touches only two rooms or minus 6 if it touches one. The highest score gets the secret room. The ultra secret room goes two cells away from the floor and touches no room.</p>
+            </li>
+        </ol>
+
+        <figure class="replay">
+            <div class="sheet">
+                <canvas id="replay" class="floor" width="666" height="588" role="img" aria-label="The floor at this step"></canvas>
+            </div>
+            <div class="scrub">
+                <button class="btn" type="button" id="play"><span id="play-label" data-letter>Play</span></button>
+                <div class="slider"><input type="range" id="frame" min="0" max="0" value="0" aria-label="Step"></div>
+                <output id="step" for="frame">Step 1</output>
+            </div>
+            <figcaption class="readout" id="caption" aria-live="polite"></figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="odds container" id="odds" aria-labelledby="odds-head">
+    <span class="doodle doodle--spider" aria-hidden="true"></span>
+    <span class="doodle doodle--zombie" aria-hidden="true"></span>
+    <h2 id="odds-head" data-letter>The odds</h2>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th scope="col" data-letter>Roll</th><th scope="col" data-letter>Odds</th><th scope="col" data-letter>When</th><th scope="col" data-letter>Source</th></tr></thead>
+            <tbody>
+                <tr><th scope="row">Bigger room shape</th><td class="figure" data-letter>1 in 24 to 72</td><td>Each shape, for each free door</td><td>Game code</td></tr>
+                <tr><th scope="row">New room goes to the front of the queue</th><td class="figure" data-letter>2 in 3</td><td>Every room placed</td><td>Game code</td></tr>
+                <tr><th scope="row">Horseman boss</th><td class="figure" data-letter>1 in 10</td><td>First floor of a chapter</td><td>Game code</td></tr>
+                <tr><th scope="row">Double Trouble</th><td class="figure" data-letter>1 in 25 to 50</td><td>Caves, Depths I, Womb I</td><td>Game code</td></tr>
+                <tr><th scope="row">Planetarium</th><td class="figure" data-letter>1% + 20%</td><td>Per skipped item room, up to Depths II</td><td>Game code</td></tr>
+                <tr><th scope="row">Dice or sacrifice room</th><td class="figure" data-letter>1 in 7</td><td>Extra 1 in 4 at full health</td><td>special_rooms.lua</td></tr>
+                <tr><th scope="row">Library</th><td class="figure" data-letter>1 in 20</td><td>Any floor</td><td>special_rooms.lua</td></tr>
+                <tr><th scope="row">Curse room</th><td class="figure" data-letter>1 in 2</td><td>Any floor</td><td>special_rooms.lua</td></tr>
+                <tr><th scope="row">Miniboss room</th><td class="figure" data-letter>1 in 4</td><td>Second roll after the first floor</td><td>special_rooms.lua</td></tr>
+                <tr><th scope="row">Arcade or vault</th><td class="figure" data-letter>Always</td><td>Even floors with 5 coins</td><td>special_rooms.lua</td></tr>
+                <tr><th scope="row">Bedroom</th><td class="figure" data-letter>1 in 50</td><td>Extra 1 in 5 at one heart or less</td><td>special_rooms.lua</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="sources container" id="sources" aria-labelledby="sources-head">
+    <span class="doodle doodle--ghost" aria-hidden="true"></span>
+    <span class="doodle doodle--face" aria-hidden="true"></span>
+    <h2 id="sources-head" data-letter>Sources</h2>
+    <dl class="rows">
+        <div><dt data-letter>Layout, dead ends, bosses, planetarium, secret rooms</dt><dd>The game’s <code>isaac-ng.exe</code>, decompiled with Ghidra.</dd></div>
+        <div><dt data-letter>Special room order and rolls</dt><dd><a href="https://gist.github.com/bladecoding/d75aef7e830c738ad5e3d66d146a095c">bladecoding’s special_rooms.lua</a>, checked against the game’s order.</dd></div>
+        <div><dt data-letter>Room layouts and boss pools</dt><dd><code>rooms/00.special rooms.stb</code> and <code>bosspools.xml</code> from the game files.</dd></div>
+        <div><dt data-letter>Graphics</dt><dd>The paper, doodles, cursor, minimap, boss portraits and the TeamMeat font are taken from the game’s <code>resources</code> folder.</dd></div>
+        <div><dt data-letter>Differences from the game</dt><dd>Seeds don’t match the game’s seeds. It assumes everything is unlocked, you have no items and all doors are open.</dd></div>
+    </dl>
+</section>
+
+<footer class="mast">
+    <div class="container">
+        <span class="doodle doodle--kid" aria-hidden="true"></span>
+        <span class="doodle doodle--poop" aria-hidden="true"></span>
+        <span class="doodle doodle--stick" aria-hidden="true"></span>
+        <p class="mast__mark" data-letter>Floor generator</p>
+        <div class="mast__row">
+            <p>A fan project. The Binding of Isaac, its art and its rooms belong to Edmund McMillen and Nicalis.</p>
+            <nav aria-label="Footer">
+                <a href="#grow" data-letter>How it works</a>
+                <a href="#odds" data-letter>The odds</a>
+                <a href="#sources" data-letter>Sources</a>
+            </nav>
+        </div>
+    </div>
+</footer>
+
+<script src="js/gen.js"></script>
+<script src="js/lettering.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
